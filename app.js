@@ -9,6 +9,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
+const { limiter } = require('./middlewares/rateLimiter');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -29,6 +30,8 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.use(limiter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
