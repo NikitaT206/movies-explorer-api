@@ -103,7 +103,7 @@ module.exports.updateUser = ((req, res, next) => {
           if (err.name === 'MongoServerError' && err.code === 11000) {
             throw new ConflictError(userErrorMessages.conflict);
           }
-          throw err;
+          throw err
         })
         .catch(next);
     })
