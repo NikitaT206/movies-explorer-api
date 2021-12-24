@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -6,6 +5,7 @@ const ValidatonError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
+const { userErrorMessages } = require('../utils/constants');
 
 module.exports.createUser = ((req, res, next) => {
   const {
@@ -17,25 +17,27 @@ module.exports.createUser = ((req, res, next) => {
       User.create({
         email, name, password: hash,
       })
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            throw new ValidatonError(err.message);
-          }
-          if (!password) {
-            throw new ValidatonError('Введите пароль');
-          }
-          if (err.name === 'MongoServerError' && err.code === 11000) {
-            throw new ConflictError('Пользователь с указанным email уже существует');
-          }
-        })
         .then((user) => res.send({
           data: {
             email: user.email,
             name: user.name,
           },
         }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            throw new ValidatonError(err.message);
+          }
+          if (!password) {
+            throw new ValidatonError(userErrorMessages.enterPassword);
+          }
+          if (err.name === 'MongoServerError' && err.code === 11000) {
+            throw new ConflictError(userErrorMessages.conflict);
+          }
+          throw err;
+        })
         .catch(next);
-    });
+    })
+    .catch(next);
 });
 
 module.exports.login = (req, res, next) => {
@@ -45,21 +47,20 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неправльные почта или пароль');
+        throw new UnauthorizedError(userErrorMessages.unauthorized);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError('Неправльные почта или пароль');
+            throw new UnauthorizedError(userErrorMessages.unauthorized);
           }
           const token = jwt.sign(
             { _id: user._id },
             NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
             { expiresIn: '7d' },
           );
-          res.send(token);
+          res.send({ data: token });
         })
-
         .catch(next);
     })
     .catch(next);
@@ -74,20 +75,37 @@ module.exports.getUserInfo = ((req, res, next) => {
 module.exports.updateUser = ((req, res, next) => {
   const { email, name } = req.body;
 
-  User.findByIdAndUpdate(req.user, { email, name }, { new: true })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new ValidatonError('Переданы некорректные данные');
-      }
-      if (err.name === 'CastError') {
-        throw new ValidatonError('Проверьте правильность ввода id');
-      }
-    })
+  User.findById(req.user)
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователя с таким id не существует');
+      if (!email || !name) {
+        throw new ValidatonError(userErrorMessages.required);
       }
-      res.send(user);
+      if (user.email === email) {
+        throw new ValidatonError(userErrorMessages.enterNewEmail);
+      }
+      if (user.name === name) {
+        throw new ValidatonError(userErrorMessages.enterNewName);
+      }
+      User.findByIdAndUpdate(user, { email, name }, { new: true })
+        .then((updateUser) => {
+          if (!updateUser) {
+            throw new NotFoundError(userErrorMessages.notFoundId);
+          }
+          res.send(updateUser);
+        })
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            throw new ValidatonError(userErrorMessages.incorrectData);
+          }
+          if (err.name === 'CastError') {
+            throw new ValidatonError(userErrorMessages.incorrectId);
+          }
+          if (err.name === 'MongoServerError' && err.code === 11000) {
+            throw new ConflictError(userErrorMessages.conflict);
+          }
+          throw err;
+        })
+        .catch(next);
     })
     .catch(next);
 });
