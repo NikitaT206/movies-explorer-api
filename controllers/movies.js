@@ -2,6 +2,7 @@ const Movie = require('../models/movie');
 const ValidatonError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const { movieErrorMessages } = require('../utils/constants');
 
 module.exports.getMovies = ((req, res, next) => {
   Movie.find({})
@@ -51,15 +52,15 @@ module.exports.deleteMovie = ((req, res, next) => {
   Movie.findById(req.params.movieId)
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new ValidatonError('Проверьте правильность ввода id');
+        throw new ValidatonError(movieErrorMessages.incorrectId);
       }
     })
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError('Фильма с таким id не существует');
+        throw new NotFoundError(movieErrorMessages.notFoundId);
       }
       if (movie.owner.valueOf() !== req.user._id) {
-        throw new ForbiddenError('Вы не можете удалять чужие фильмы');
+        throw new ForbiddenError(movieErrorMessages.forbidden);
       }
       Movie.findByIdAndRemove(req.params.movieId)
         .then((deleteMovie) => {

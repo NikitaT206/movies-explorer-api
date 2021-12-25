@@ -6,6 +6,7 @@ const ValidatonError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
+const { userErrorMessages } = require('../utils/constants');
 
 module.exports.createUser = ((req, res, next) => {
   const {
@@ -22,10 +23,10 @@ module.exports.createUser = ((req, res, next) => {
             throw new ValidatonError(err.message);
           }
           if (!password) {
-            throw new ValidatonError('Введите пароль');
+            throw new ValidatonError(userErrorMessages.enterPassword);
           }
           if (err.name === 'MongoServerError' && err.code === 11000) {
-            throw new ConflictError('Пользователь с указанным email уже существует');
+            throw new ConflictError(userErrorMessages.conflict);
           }
         })
         .then((user) => res.send({
@@ -45,12 +46,12 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неправльные почта или пароль');
+        throw new UnauthorizedError(userErrorMessages.unauthorized);
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError('Неправльные почта или пароль');
+            throw new UnauthorizedError(userErrorMessages.unauthorized);
           }
           const token = jwt.sign(
             { _id: user._id },
@@ -77,15 +78,15 @@ module.exports.updateUser = ((req, res, next) => {
   User.findByIdAndUpdate(req.user, { email, name }, { new: true })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new ValidatonError('Переданы некорректные данные');
+        throw new ValidatonError(userErrorMessages.incorrectData);
       }
       if (err.name === 'CastError') {
-        throw new ValidatonError('Проверьте правильность ввода id');
+        throw new ValidatonError(userErrorMessages.incorrectId);
       }
     })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователя с таким id не существует');
+        throw new NotFoundError(userErrorMessages.notFoundId);
       }
       res.send(user);
     })
