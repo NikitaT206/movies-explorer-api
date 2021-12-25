@@ -26,7 +26,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Credentials', true);
     return res.end();
   }
-  next();
+  return next();
 });
 
 app.use(limiter);
@@ -52,7 +52,7 @@ app.use(errorLogger);
 
 app.use(errors());
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
   res.status(statusCode).send({
