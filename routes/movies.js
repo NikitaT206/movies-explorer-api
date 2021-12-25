@@ -1,7 +1,7 @@
-/* eslint-disable no-useless-escape */
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const { getMovies, createMovie, deleteMovie } = require('../controllers/movies');
+const { urlValidationJoi } = require('../utils/validation');
 
 router.get('/movies', getMovies);
 router.post('/movies', celebrate({
@@ -11,9 +11,9 @@ router.post('/movies', celebrate({
     duration: Joi.number().required(),
     year: Joi.number().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().regex(/^(https?:\/\/)(www)?([\da-z\.-]+)\.([a-z]{2,3})([\/\w\W \.-]*)*\/?#?$/),
-    trailer: Joi.string().required().regex(/^(https?:\/\/)(www)?([\da-z\.-]+)\.([a-z]{2,3})([\/\w\W \.-]*)*\/?#?$/),
-    thumbnail: Joi.string().required().regex(/^(https?:\/\/)(www)?([\da-z\.-]+)\.([a-z]{2,3})([\/\w\W \.-]*)*\/?#?$/),
+    image: Joi.string().required().custom(urlValidationJoi),
+    trailer: Joi.string().required().custom(urlValidationJoi),
+    thumbnail: Joi.string().required().custom(urlValidationJoi),
     movieId: Joi.string().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
