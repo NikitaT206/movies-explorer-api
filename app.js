@@ -60,6 +60,8 @@ app.use((err, req, res, next) => {
       ? serverErrorMessages.serverError
       : message,
   });
+
+  return next();
 });
 
 mongoose.connect(process.env.NODE_ENV === 'production'
