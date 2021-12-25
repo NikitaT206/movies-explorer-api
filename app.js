@@ -40,25 +40,12 @@ app.listen(PORT, () => {
 
 app.use(requestLogger);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().required().min(2).max(30),
-  }),
-}), createUser);
-
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
+app.use(require('./routes/sign'));
 
 app.use(auth);
 
-app.use('/', require('./routes/users'));
-app.use('/', require('./routes/movies'));
+app.use(require('./routes/users'));
+app.use(require('./routes/movies'));
 
 app.use(() => {
   throw new NotFoundError(serverErrorMessages.notFound);
