@@ -87,6 +87,12 @@ module.exports.updateUser = ((req, res, next) => {
         throw new ValidatonError(userErrorMessages.enterNewName);
       }
       User.findByIdAndUpdate(user, { email, name }, { new: true })
+        .then((updateUser) => {
+          if (!updateUser) {
+            throw new NotFoundError(userErrorMessages.notFoundId);
+          }
+          res.send(updateUser);
+        })
         .catch((err) => {
           if (err.name === 'ValidationError') {
             throw new ValidatonError(userErrorMessages.incorrectData);
@@ -94,12 +100,9 @@ module.exports.updateUser = ((req, res, next) => {
           if (err.name === 'CastError') {
             throw new ValidatonError(userErrorMessages.incorrectId);
           }
-        })
-        .then((updateUser) => {
-          if (!updateUser) {
-            throw new NotFoundError(userErrorMessages.notFoundId);
+          if (err.name === 'MongoServerError' && err.code === 11000) {
+            throw new ConflictError(userErrorMessages.conflict);
           }
-          res.send(updateUser);
         })
         .catch(next);
     })
