@@ -1,6 +1,7 @@
 const validationMessages = {
   requiredField: 'Обязательное поле',
   incorrectURL: 'Введен некорректный URL',
+  incorrectEmail: 'Введен некорректный email',
 };
 
 const userErrorMessages = {

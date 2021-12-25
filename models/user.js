@@ -1,21 +1,22 @@
 const mongoose = require('mongoose');
 const { default: isEmail } = require('validator/lib/isEmail');
+const { validationMessages } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: [true, 'Обязательное поле'],
+    required: [true, validationMessages.requiredField],
     unique: true,
-    validate: [isEmail, 'Введен некорректный email'],
+    validate: [isEmail, validationMessages.incorrectEmail],
   },
   password: {
     type: String,
-    required: [true, 'Обязательное поле'],
+    required: [true, validationMessages.requiredField],
     select: false,
   },
   name: {
     type: String,
-    required: [true, 'обязательное поле'],
+    required: [true, validationMessages.requiredField],
     minlength: 2,
     maxlength: 30,
   },

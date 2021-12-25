@@ -10,6 +10,7 @@ const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
 const { limiter } = require('./middlewares/rateLimiter');
+const { serverErrorMessages } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -60,7 +61,7 @@ app.use('/', require('./routes/users'));
 app.use('/', require('./routes/movies'));
 
 app.use(() => {
-  throw new NotFoundError('Запрашиваемый ресурс не найден');
+  throw new NotFoundError(serverErrorMessages.notFound);
 });
 
 app.use(errorLogger);
@@ -72,7 +73,7 @@ app.use((err, req, res, next) => {
 
   res.status(statusCode).send({
     message: statusCode === 500
-      ? 'На сервере произошла ошибка'
+      ? serverErrorMessages.serverError
       : message,
   });
 });
