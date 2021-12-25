@@ -67,6 +67,7 @@ module.exports.deleteMovie = ((req, res, next) => {
       if (err.name === 'CastError') {
         throw new ValidatonError(movieErrorMessages.incorrectId);
       }
+      throw err;
     })
     .catch(next);
 });
