@@ -29,13 +29,13 @@ app.use((req, res, next) => {
   return next();
 });
 
+app.use(requestLogger);
+
 app.use(limiter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
-
-app.use(requestLogger);
 
 app.use(require('./routes/sign'));
 
