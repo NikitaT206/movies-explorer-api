@@ -17,6 +17,12 @@ module.exports.createUser = ((req, res, next) => {
       User.create({
         email, name, password: hash,
       })
+        .then((user) => res.send({
+          data: {
+            email: user.email,
+            name: user.name,
+          },
+        }))
         .catch((err) => {
           if (err.name === 'ValidationError') {
             throw new ValidatonError(err.message);
@@ -28,14 +34,9 @@ module.exports.createUser = ((req, res, next) => {
             throw new ConflictError(userErrorMessages.conflict);
           }
         })
-        .then((user) => res.send({
-          data: {
-            email: user.email,
-            name: user.name,
-          },
-        }))
         .catch(next);
-    });
+    })
+    .catch(next);
 });
 
 module.exports.login = (req, res, next) => {
@@ -59,7 +60,6 @@ module.exports.login = (req, res, next) => {
           );
           res.send(token);
         })
-
         .catch(next);
     })
     .catch(next);
