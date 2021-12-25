@@ -75,20 +75,33 @@ module.exports.getUserInfo = ((req, res, next) => {
 module.exports.updateUser = ((req, res, next) => {
   const { email, name } = req.body;
 
-  User.findByIdAndUpdate(req.user, { email, name }, { new: true })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new ValidatonError(userErrorMessages.incorrectData);
-      }
-      if (err.name === 'CastError') {
-        throw new ValidatonError(userErrorMessages.incorrectId);
-      }
-    })
+  User.findById(req.user)
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError(userErrorMessages.notFoundId);
+      if (!email || !name) {
+        throw new ValidatonError(userErrorMessages.required);
       }
-      res.send(user);
+      if (user.email === email) {
+        throw new ValidatonError(userErrorMessages.enterNewEmail);
+      }
+      if (user.name === name) {
+        throw new ValidatonError(userErrorMessages.enterNewName);
+      }
+      User.findByIdAndUpdate(user, { email, name }, { new: true })
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            throw new ValidatonError(userErrorMessages.incorrectData);
+          }
+          if (err.name === 'CastError') {
+            throw new ValidatonError(userErrorMessages.incorrectId);
+          }
+        })
+        .then((updateUser) => {
+          if (!updateUser) {
+            throw new NotFoundError(userErrorMessages.notFoundId);
+          }
+          res.send(updateUser);
+        })
+        .catch(next);
     })
     .catch(next);
 });
