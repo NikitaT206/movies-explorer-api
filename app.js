@@ -26,7 +26,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Credentials', true);
     return res.end();
   }
-  return next();
+  next();
 });
 
 app.use(limiter);
