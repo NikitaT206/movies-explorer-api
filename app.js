@@ -1,11 +1,8 @@
-/* eslint-disable consistent-return */
-/* eslint-disable no-unused-vars */
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
-const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
@@ -29,7 +26,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Credentials', true);
     return res.end();
   }
-  next();
+  return next();
 });
 
 app.use(limiter);
@@ -55,7 +52,7 @@ app.use(errorLogger);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   const { statusCode = 500, message } = err;
 
   res.status(statusCode).send({

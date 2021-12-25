@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-escape */
 const mongoose = require('mongoose');
 const { validationMessages } = require('../utils/constants');
 const { urlValidationSchema } = require('../utils/validation');
