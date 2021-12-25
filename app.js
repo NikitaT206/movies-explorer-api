@@ -8,6 +8,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
 const { limiter } = require('./middlewares/rateLimiter');
 const { serverErrorMessages } = require('./utils/constants');
+const MONGODB_URI = require('./utils/config');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -66,6 +67,6 @@ app.use((err, req, res, next) => {
 
 mongoose.connect(process.env.NODE_ENV === 'production'
   ? process.env.MONGODB_URI
-  : 'mongodb://localhost:27017/bitfilmsdb', {
+  : MONGODB_URI, {
   useNewUrlParser: true,
 });
