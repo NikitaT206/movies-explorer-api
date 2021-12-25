@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-escape */
 const mongoose = require('mongoose');
 const { validationMessages } = require('../utils/constants');
+const { urlValidationSchema } = require('../utils/validation');
 
 const movieSchema = new mongoose.Schema({
   country: {
@@ -27,9 +28,7 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: [true, validationMessages.requiredField],
     validate: {
-      validator(v) {
-        return /^(https?:\/\/)(www)?([\da-z\.-]+)\.([a-z]{2,3})([\/\w\W \.-]*)*\/?#?$/.test(v);
-      },
+      validator: urlValidationSchema,
       message: validationMessages.incorrectURL,
     },
   },
@@ -37,9 +36,7 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: [true, validationMessages.requiredField],
     validate: {
-      validator(v) {
-        return /^(https?:\/\/)(www)?([\da-z\.-]+)\.([a-z]{2,3})([\/\w\W \.-]*)*\/?#?$/.test(v);
-      },
+      validator: urlValidationSchema,
       message: validationMessages.incorrectURL,
     },
   },
@@ -47,9 +44,7 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: [true, validationMessages.requiredField],
     validate: {
-      validator(v) {
-        return /^(https?:\/\/)(www)?([\da-z\.-]+)\.([a-z]{2,3})([\/\w\W \.-]*)*\/?#?$/.test(v);
-      },
+      validator: urlValidationSchema,
       message: validationMessages.incorrectURL,
     },
   },
