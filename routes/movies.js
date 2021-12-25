@@ -14,7 +14,7 @@ router.post('/movies', celebrate({
     image: Joi.string().required().custom(urlValidationJoi),
     trailer: Joi.string().required().custom(urlValidationJoi),
     thumbnail: Joi.string().required().custom(urlValidationJoi),
-    movieId: Joi.string().required(),
+    movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),
