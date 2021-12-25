@@ -39,22 +39,17 @@ module.exports.createMovie = ((req, res, next) => {
     nameEN,
     owner: req.user._id,
   })
+    .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new ValidatonError(err.message);
       }
     })
-    .then((movie) => res.send(movie))
     .catch(next);
 });
 
 module.exports.deleteMovie = ((req, res, next) => {
   Movie.findById(req.params.movieId)
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new ValidatonError(movieErrorMessages.incorrectId);
-      }
-    })
     .then((movie) => {
       if (!movie) {
         throw new NotFoundError(movieErrorMessages.notFoundId);
@@ -67,6 +62,11 @@ module.exports.deleteMovie = ((req, res, next) => {
           res.send(deleteMovie);
         })
         .catch(next);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new ValidatonError(movieErrorMessages.incorrectId);
+      }
     })
     .catch(next);
 });
