@@ -70,3 +70,6 @@ mongoose.connect(process.env.NODE_ENV === 'production'
   : MONGODB_URI, {
   useNewUrlParser: true,
 });
+
+console.log(MONGODB_URI);
+console.log(process.env.MONGODB_URI);
