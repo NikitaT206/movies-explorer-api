@@ -30,7 +30,7 @@ module.exports.createUser = ((req, res, next) => {
           if (!password) {
             throw new ValidatonError(userErrorMessages.enterPassword);
           }
-          if (err.name === 'MongoServerError' && err.code === 11000) {
+          if (err.code === 11000) {
             throw new ConflictError(userErrorMessages.conflict);
           }
         })
@@ -76,9 +76,6 @@ module.exports.updateUser = ((req, res, next) => {
 
   User.findById(req.user)
     .then((user) => {
-      if (!email || !name) {
-        throw new ValidatonError(userErrorMessages.required);
-      }
       if (user.email === email) {
         throw new ValidatonError(userErrorMessages.enterNewEmail);
       }
@@ -99,7 +96,7 @@ module.exports.updateUser = ((req, res, next) => {
           if (err.name === 'CastError') {
             throw new ValidatonError(userErrorMessages.incorrectId);
           }
-          if (err.name === 'MongoServerError' && err.code === 11000) {
+          if (err.code === 11000) {
             throw new ConflictError(userErrorMessages.conflict);
           }
         })
