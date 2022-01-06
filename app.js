@@ -10,6 +10,7 @@ const { limiter } = require('./middlewares/rateLimiter');
 const { serverErrorMessages } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
+const { MONGODB_URI = 'mongodb://localhost:27017/moviesdb' } = process.env;
 
 const app = express();
 
@@ -65,8 +66,6 @@ app.use((err, req, res, next) => {
   return next();
 });
 
-mongoose.connect(process.env.NODE_ENV === 'production'
-  ? process.env.MONGODB_URI
-  : 'mongodb://localhost:27017/moviesdb', {
+mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
 });
