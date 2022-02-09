@@ -74,33 +74,23 @@ module.exports.getUserInfo = ((req, res, next) => {
 module.exports.updateUser = ((req, res, next) => {
   const { email, name } = req.body;
 
-  User.findById(req.user)
-    .then((user) => {
-      if (user.email === email) {
-        throw new ValidatonError(userErrorMessages.enterNewEmail);
+  User.findByIdAndUpdate(req.user, { email, name }, { new: true })
+    .then((updateUser) => {
+      if (!updateUser) {
+        throw new NotFoundError(userErrorMessages.notFoundId);
       }
-      if (user.name === name) {
-        throw new ValidatonError(userErrorMessages.enterNewName);
+      res.send(updateUser);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        throw new ValidatonError(userErrorMessages.incorrectData);
       }
-      User.findByIdAndUpdate(user, { email, name }, { new: true })
-        .then((updateUser) => {
-          if (!updateUser) {
-            throw new NotFoundError(userErrorMessages.notFoundId);
-          }
-          res.send(updateUser);
-        })
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            throw new ValidatonError(userErrorMessages.incorrectData);
-          }
-          if (err.name === 'CastError') {
-            throw new ValidatonError(userErrorMessages.incorrectId);
-          }
-          if (err.code === 11000) {
-            throw new ConflictError(userErrorMessages.conflict);
-          }
-        })
-        .catch(next);
+      if (err.name === 'CastError') {
+        throw new ValidatonError(userErrorMessages.incorrectId);
+      }
+      if (err.code === 11000) {
+        throw new ConflictError(userErrorMessages.conflict);
+      }
     })
     .catch(next);
-});
+})
